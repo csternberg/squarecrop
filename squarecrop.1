@@ -1,0 +1,137 @@
+.TH SQUARECROP 1 "October 2026" "squarecrop 2.10" "User Commands"
+.SH NAME
+squarecrop \- cut square JPEGs out of images, or pad them to a square
+.SH SYNOPSIS
+.B squarecrop.py
+.RI [ switches ]
+.RI [ files " ...]"
+.SH DESCRIPTION
+.B squarecrop
+produces square JPEG images from rectangular source images, either by cropping
+a square of the shorter side or by padding the shorter side with a colour.
+Supported inputs are jpg, jpeg, png, bmp, gif, tif, tiff and webp.
+Output is always JPEG, named
+.IR name _square_ mode .jpg ,
+and existing files are never overwritten unless
+.B \-w
+is given; a numeric suffix (_001, _002, ...) is added instead.
+.PP
+Switches are case-insensitive:
+.BR \-LS ,
+.B \-ls
+and
+.B \-\-LeftSide
+are identical.
+.B \-\-switch=value
+is accepted for long switches.
+Wildcards in file arguments are expanded by the program itself.
+.SH CROP MODES
+The crop is a square whose side is the shorter dimension of the source.
+Several modes may be given; one file per mode is written.
+If none is given,
+.B \-t
+is assumed.
+.TP
+.BR \-t ", " \-\-top
+Crop from the top (portrait images); centred on landscape images.
+.TP
+.BR \-ls ", " \-\-leftside ", " \-\-left
+Crop from the left side (landscape images); centred on portrait images.
+.TP
+.BR \-rs ", " \-\-rightside ", " \-\-right
+Crop from the right side (landscape images); centred on portrait images.
+.TP
+.BR \-b ", " \-\-bottom
+Crop from the bottom (portrait images); centred on landscape images.
+.TP
+.BR \-i ", " \-\-middle
+Crop a square from the centre of the image.
+.TP
+.BR \-p ", " \-\-pad ", " \-e ", " \-\-expand " \fICOLOR\fR"
+Do not crop. Instead pad the shorter dimension to make a square.
+.I COLOR
+is
+.BR black ,
+.BR white ,
+.B b
+or
+.BR w ,
+or an RGB value written
+.B 0xAABBCC
+or
+.BR #AABBCC .
+A 100x200 image padded with black becomes 200x200 with 50 pixel black bars.
+Cannot be combined with crop modes.
+.SH OUTPUT
+.TP
+.BR \-z ", " \-\-resize " \fIN\fR"
+Resize the result to N x N pixels.
+.TP
+.BR \-q ", " \-\-quality " \fIN\fR"
+JPEG quality, 1\-100 (default 95).
+.TP
+.BR \-o ", " \-\-output " \fIDIR\fR"
+Write results to DIR, creating it if needed (default: next to the source).
+.TP
+.BR \-w ", " \-\-overwrite
+Overwrite existing output files.
+.TP
+.BR \-m ", " \-\-strip\-metadata ", " \-\-nometadata
+Do not copy EXIF and ICC profile data.
+.SH INPUT SELECTION
+.TP
+.BR \-c ", " \-\-current
+Process all images in the current directory.
+.TP
+.BR \-r ", " \-\-recursive
+Process images in the current directory and all subdirectories.
+.TP
+.BR \-f ", " \-\-file\-pattern ", " \-\-pattern " \fIGLOB\fR"
+Only process files matching GLOB.
+.PP
+Files previously produced by squarecrop (\fI*_square_*.jpg\fR) are skipped
+by these options. Images that are already square are skipped unless
+.B \-z
+requests a different size. Symbolic links are ignored.
+.SH MISCELLANEOUS
+.TP
+.BR \-j ", " \-\-jobs " \fIN\fR"
+Number of worker threads (default 4).
+.TP
+.BR \-d ", " \-\-dry\-run ", " \-\-dryrun
+Print the files that would be written; write nothing.
+.TP
+.BR \-l ", " \-\-log
+Log to squarecrop.log in the current directory.
+.TP
+.BR \-v ", " \-\-verbose
+Print each source and result as it is processed.
+.TP
+.BR \-h ", " \-? ", " \-\-help
+Show help and exit.
+.TP
+.B \-\-version
+Show the version and exit.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Usage error (no input, or conflicting switches).
+.TP
+.B 2
+No matching files, or an invalid argument.
+.TP
+.B 3
+One or more files failed; the rest were still processed.
+.SH EXAMPLES
+.nf
+squarecrop.py photo.jpg
+squarecrop.py \-ls \-rs \-c
+squarecrop.py \-i \-z 512 *.png
+squarecrop.py \-\-pad 0x336699 \-r \-o out
+squarecrop.py \-r \-f "*.png" \-q 90 \-\-dry\-run
+.fi
+.SH REQUIREMENTS
+Python 3 and the Pillow library.
